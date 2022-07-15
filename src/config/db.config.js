@@ -3,9 +3,32 @@ const mongoose = require('mongoose');
 
 const URL = process.env.MONGODB_ACCESS_URL;
 
+const access = {
+    connected: false
+};
+
 class Database {
     static async connect() {
-        return await mongoose.connect('mongodb+srv://rajprogrammerbd:Casino123@cluster0.h754vo1.mongodb.net/?retryWrites=true&w=majority');
+        try {
+            const status = await mongoose.connect(URL);
+            access.connected = true;
+            return status;
+        } catch (err) {
+            return err;
+        }
+    }
+
+    static isSuccess() {
+        return access.connected;
+    }
+
+    static prepare(schema, modelName) {
+        if (!mongoose.models[modelName]) {
+            return mongoose.model(modelName, schema);
+          }
+          else {
+            return mongoose.models[modelName];
+          }
     }
 };
 
