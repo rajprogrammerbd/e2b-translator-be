@@ -6,12 +6,13 @@ const Database = require("./src/config/db.config");
 const homepageRoutes = require('./src/routes/homepage.route');
 const userCredential = require('./src/routes/userCredential.route');
 const passport = require('passport');
+const colors = require('colors');
 
 // Check for database connection.
 Database.connect().then(() => {
-  console.log('Database is connected');
+  console.log(colors.italic.bold.bgGreen('Database is connected'));
 }).catch((err) => {
-  console.log('error on connect to database');
+  console.log(colors.bold.bgRed('error on connect to database'));
   process.exit();
 });
 

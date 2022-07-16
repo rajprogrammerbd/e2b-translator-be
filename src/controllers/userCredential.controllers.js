@@ -20,7 +20,6 @@ async function loginUser(req, res) {
     if (email && password) {
         try {
             const value = await userCredentialService.loginUser(email, password);
-            console.log(value);
             res.send(value);
         } catch (err) {
             throw new Error(err);
