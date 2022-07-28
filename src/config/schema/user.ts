@@ -1,4 +1,13 @@
-const { default: mongoose } = require("mongoose");
+import mongoose from 'mongoose';
+
+export interface user {
+    _id?: mongoose.Schema.Types.ObjectId;
+    name: string;
+    email: string;
+    password: string;
+    userName: string;
+    createdTime: Date;
+}
 
 const userSchema = {
     name: { type: String, required: true },
@@ -8,4 +17,4 @@ const userSchema = {
     createdTime: Date,
 };
 
-module.exports = userSchema;
+export default userSchema;

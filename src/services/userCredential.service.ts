@@ -1,11 +1,18 @@
-const userSchema = require('../config/schema/user');
-const Database = require('../config/db.config');
-const { hashSync, compareSync } = require('bcrypt');
-const jwt = require("jsonwebtoken");
+import userSchema, { user } from '../config/schema/user';
+import Database from '../config/db.config';
+import { hashSync, compareSync } from 'bcrypt';
+import jwt from "jsonwebtoken";
 
 const User = Database.prepare(userSchema, 'user');
 
-async function createUser(person) {
+interface IPerson {
+    name: string;
+    email: string;
+    password: string;
+    userName: string;
+}
+
+async function createUser(person: IPerson) {
     const { name, email, password, userName } = person;
 
     if (Database.isSuccess()) {
@@ -27,16 +34,16 @@ async function createUser(person) {
                 message: 'User created successfully',
                 user: { name: res.name, email: res.email }
             };
-        } catch (err) {
+        } catch (err: any) {
             throw new Error(err);
         }
 
     } else return new Error("database is not connected");
 }
 
-async function loginUser(email, password) {
+async function loginUser(email: string, password: string) {
     if (Database.isSuccess()) {
-        return User.findOne({ email }).then(user => {
+        return User.findOne({ email }).then((user: user) => {
             if (!user) {
                 throw new Error("Couldn't able to find user");
             }
@@ -50,7 +57,7 @@ async function loginUser(email, password) {
                 id: user._id
             };
 
-            const token = jwt.sign(payload, process.env.JSON_PRIVATE_KEY, { expiresIn: '1d' });
+            const token = jwt.sign(payload, process.env.JSON_PRIVATE_KEY as string, { expiresIn: '1d' });
 
             return {
                 success: true,
@@ -62,7 +69,7 @@ async function loginUser(email, password) {
     } else return new Error("database is not connected");
 }
 
-module.exports = {
+export default {
     createUser,
     loginUser,
 }

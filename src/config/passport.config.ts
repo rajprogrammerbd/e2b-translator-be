@@ -1,18 +1,18 @@
 const passport = require("passport");
-const Database = require("./db.config");
-const userSchema = require("./schema/user");
+import Database from "./db.config";
+import userSchema from "./schema/user";
 
 const User = Database.prepare(userSchema, 'user');
 
 const JwtStrategy = require("passport-jwt").Strategy,
   ExtractJwt = require("passport-jwt").ExtractJwt;
 
-const opts = {};
+const opts: any = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = process.env.JSON_PRIVATE_KEY,
 
-passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-    User.findOne({ id: jwt_payload.sub }, function(err, user) {
+passport.use(new JwtStrategy(opts, (jwt_payload: any, done: any) => {
+    User.findOne({ id: jwt_payload.sub }, function(err: any, user: any) {
         if (err) {
             return done(err, false);
         }
