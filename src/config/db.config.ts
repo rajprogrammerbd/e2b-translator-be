@@ -1,28 +1,28 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const URL = process.env.MONGODB_ACCESS_URL;
+const URL = process.env.MONGODB_ACCESS_URL as string;
 
 const access = {
     connected: false
 };
 
 class Database {
-    static async connect() {
+    static async connect(): Promise<typeof mongoose | Error> {
         try {
             const status = await mongoose.connect(URL);
             access.connected = true;
             return status;
-        } catch (err) {
+        } catch (err: any) {
             return err;
         }
     }
 
-    static isSuccess() {
+    static isSuccess(): boolean {
         return access.connected;
     }
 
-    static prepare(schema, modelName) {
+    static prepare(schema: any, modelName: any): any {
         if (!mongoose.models[modelName]) {
             return mongoose.model(modelName, schema);
           }
@@ -32,4 +32,4 @@ class Database {
     }
 };
 
-module.exports = Database;
+export default Database;

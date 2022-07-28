@@ -1,6 +1,7 @@
-const userCredentialService = require("../services/userCredential.service");
+import express from 'express';
+import userCredentialService from "../services/userCredential.service";
 
-async function saveUser(req, res) {
+async function saveUser(req: express.Request, res: express.Response) {
     try {
         const { name, email, password, userName } = req.body;
 
@@ -10,24 +11,24 @@ async function saveUser(req, res) {
             res.json(await userCredentialService.createUser(person));
         } else res.status(404).send({ message: 'User needs to send all required data' });
 
-    } catch (err) {
+    } catch (err: any) {
         throw new Error(err);
     }
 }
 
-async function loginUser(req, res) {
+async function loginUser(req: express.Request, res: express.Response) {
     const { email, password } = req.body;
     if (email && password) {
         try {
             const value = await userCredentialService.loginUser(email, password);
             res.send(value);
-        } catch (err) {
+        } catch (err: any) {
             throw new Error(err);
         }
     } else res.status(404).send({ message: 'User needs to send all required data' });
 }
 
-module.exports = {
+export default {
     saveUser,
     loginUser,
 }
