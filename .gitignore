@@ -105,3 +105,5 @@ dist
 
 # environmental variables for prod.
 .env.prod
+
+coverage
