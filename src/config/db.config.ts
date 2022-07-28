@@ -30,6 +30,6 @@ class Database {
             return mongoose.models[modelName];
           }
     }
-};
+}
 
 export default Database;
