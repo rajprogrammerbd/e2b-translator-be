@@ -62,8 +62,8 @@ async function loginUser(email: string, password: string) {
             return {
                 success: true,
                 name: user.name,
-                email: user.email,
-                token: `Bearer ${token}`
+                userEmail: user.email,
+                token: token
             };
         })
     } else return new Error("database is not connected");
