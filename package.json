@@ -13,11 +13,11 @@
     "format": "eslint src/**/*.ts --fix"
   },
   "engines": {
-    "node": "18.x"
+    "node": "v16.15.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rajprogrammerbd/e2b-translator-be.git"
+    "url": "https://github.com/rajprogrammerbd/e2b-translator-be.git"
   },
   "author": "",
   "license": "ISC",
