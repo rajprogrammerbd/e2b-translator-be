@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.ts",
+    "start": "ts-node index.ts",
     "test": "jest --coverage",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix"
