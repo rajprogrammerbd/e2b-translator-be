@@ -12,6 +12,9 @@
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix"
   },
+  "engines": {
+    "node": "18.x"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rajprogrammerbd/e2b-translator-be.git"
