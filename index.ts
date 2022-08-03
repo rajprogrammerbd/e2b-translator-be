@@ -18,12 +18,9 @@ import isLogin from './src/middlewares/isLogin';
 // Check for database connection.
 Database.connect().then(() => {
   console.log(colors.italic.bold.bgGreen('Database is connected'));
-}).catch(() => {
-  console.log(colors.bold.bgRed('error on connect to database'));
-  process.exit();
 });
 
-const app: express.Application = express();
+export const app: express.Application = express();
 app.use(cookieParser());
 app.use(express.json());
 app.use(isLogin);

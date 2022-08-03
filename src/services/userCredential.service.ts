@@ -3,7 +3,7 @@ import Database from '../config/db.config';
 import { hashSync, compareSync } from 'bcrypt';
 import jwt from "jsonwebtoken";
 
-const User = Database.prepare(userSchema, 'user');
+export const User = Database.prepare(userSchema, 'user');
 
 interface IPerson {
     name: string;
@@ -15,30 +15,27 @@ interface IPerson {
 async function createUser(person: IPerson) {
     const { name, email, password, userName } = person;
 
-    if (Database.isSuccess()) {
-        const searchUser = await User.find({ email });
-        if (searchUser.length > 0) throw new Error('User is already exist');
+    const searchUser = await User.find({ email });
+    if (searchUser.length > 0) throw new Error('User is already exist');
 
-        const newUser = new User({
-            name,
-            email,
-            password: hashSync(password, 10),
-            createdTime: Date.now(),
-            userName
-        });
+    const newUser = new User({
+        name,
+        email,
+        password: hashSync(password, 10),
+        createdTime: Date.now(),
+        userName
+    });
 
-        try {
-            const res = await newUser.save();
-            return {
-                success: true,
-                message: 'User created successfully',
-                user: { name: res.name, email: res.email }
-            };
-        } catch (err: any) {
-            throw new Error(err);
-        }
-
-    } else return new Error("database is not connected");
+    try {
+        const res = await newUser.save();
+        return {
+            success: true,
+            message: 'User created successfully',
+            user: { name: res.name, email: res.email }
+        };
+    } catch (err: any) {
+        throw new Error(err);
+    }
 }
 
 async function loginUser(email: string, password: string) {

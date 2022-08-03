@@ -14,6 +14,7 @@ class Database {
             access.connected = true;
             return status;
         } catch (err: any) {
+            access.connected = false;
             return err;
         }
     }
