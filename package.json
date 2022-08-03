@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
-    "postinstall": "nodemon index.ts",
+    "start": "tsc && node dist/index.js",
     "watch-node": "node dist/index.js",
     "watch-ts": "nodemon index.ts",
     "test": "jest --coverage",
