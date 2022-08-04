@@ -7,7 +7,7 @@
     "start": "tsc && node dist/index.js",
     "watch-node": "node dist/index.js",
     "watch-ts": "nodemon index.ts",
-    "test": "jest --coverage --detectOpenHandles",
+    "test": "jest --coverage  --forceExit --detectOpenHandles --verbose",
     "watchAll": "jest --coverage --watchAll --detectOpenHandles",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix"
