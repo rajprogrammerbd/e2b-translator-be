@@ -1,4 +1,4 @@
-import { app } from './../../index';
+import { appPort } from './../../index';
 import { faker } from '@faker-js/faker';
 import mongoose from 'mongoose';
 import request from 'supertest';
@@ -20,7 +20,7 @@ jest.mock('mongoose', () => {
 const URL = process.env.MONGODB_ACCESS_URL as string;
 
 test('GET - / - Failed to connect with the database', async () => {
-    const res = await request(app).get('/api/');
+    const res = await request(appPort).get('/api/');
 
     expect(res.statusCode).toBe(500);
     expect(res.body).toEqual({ message: 'Internal Error' });
@@ -39,7 +39,7 @@ describe('BE API - FOR HOMEPAGE', () => {
       });
 
       it('GET - / - Success to get homepage', async () => {
-        const res = await request(app).get('/api/');
+        const res = await request(appPort).get('/api/');
 
         expect(res.body).toEqual({ message: 'okie' });
       });
@@ -64,7 +64,7 @@ describe('BE API - FOR AUTHENTICATION', () => {
         const name = faker.name.findName();
         const email = faker.internet.email();
         const password = 'fakePassword';
-        const res = await request(app).post('/api/auth/create').send({name, email, password});
+        const res = await request(appPort).post('/api/auth/create').send({name, email, password});
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ message: 'User needs to send all required data' });
@@ -75,7 +75,7 @@ describe('BE API - FOR AUTHENTICATION', () => {
         const email = faker.internet.email();
         const password = 'fakePassword';
         const userName = 'mockUserName';
-        const res = await request(app).post('/api/auth/create').send({name, email, password, userName});
+        const res = await request(appPort).post('/api/auth/create').send({name, email, password, userName});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({

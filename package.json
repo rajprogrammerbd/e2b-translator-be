@@ -8,7 +8,7 @@
     "watch-node": "node dist/index.js",
     "watch-ts": "nodemon index.ts",
     "test": "jest --coverage --detectOpenHandles",
-    "watchAll": "jest --coverage --watchAll",
+    "watchAll": "jest --coverage --watchAll --detectOpenHandles",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix"
   },
