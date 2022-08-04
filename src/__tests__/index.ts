@@ -1,4 +1,4 @@
-import { appPort } from './../../index';
+import { appPort } from '../../index';
 import { faker } from '@faker-js/faker';
 import mongoose from 'mongoose';
 import request from 'supertest';
@@ -24,6 +24,8 @@ test('GET - / - Failed to connect with the database', async () => {
 
     expect(res.statusCode).toBe(500);
     expect(res.body).toEqual({ message: 'Internal Error' });
+
+    appPort.close();
 });
 
 describe('BE API - FOR HOMEPAGE', () => {
@@ -34,6 +36,7 @@ describe('BE API - FOR HOMEPAGE', () => {
       
       afterEach((done) => {
         mongoose.connection.db.dropDatabase(() => {
+          appPort.close();
           mongoose.connection.close(() => done())
         });
       });
@@ -45,17 +48,61 @@ describe('BE API - FOR HOMEPAGE', () => {
       });
 });
 
-describe('BE API - FOR AUTHENTICATION', () => {
-    let modal: any;
+describe('BE API - FOR AUTHORIZATION', () => {
+  beforeEach((done) => {
+    jest.clearAllMocks();
+    mongoose.connect(URL).then(() => done());
+  });
+    
+  afterEach((done) => {
+        mongoose.connection.db.dropDatabase(() => {
+          appPort.close();
+          mongoose.connection.close(() => done())
+      });
+  });
 
+  it('POST - /api/auth/login - Fail - not send all required data', async () => {
+    const email = faker.internet.email();
+
+    const res = await request(appPort).post('/api/auth/login').send({ email });
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({ message: 'User needs to send all required data' });
+  });
+
+  it('POST - /api/auth/login - Login system', async () => {
+    const name = faker.name.findName();
+    const email = faker.internet.email();
+    const password = 'fakePassword';
+    const userName = 'mockUserName';
+    
+    // Create a user.
+    await request(appPort).post('/api/auth/create').send({name, email, password, userName});
+
+    // login the user.
+    const res = await request(appPort).post('/api/auth/login').send({ email, password });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({
+      success: true,
+      name,
+      email
+    });
+
+    // deleted a user which we just created.
+    await User.deleteOne({ email });
+  });
+});
+
+describe('BE API - FOR AUTHENTICATION', () => {
     beforeEach((done) => {
       jest.clearAllMocks();
       mongoose.connect(URL).then(() => done());
-      modal = User;
     });
       
     afterEach((done) => {
-            mongoose.connection.db.dropDatabase(() => {
+          mongoose.connection.db.dropDatabase(() => {
+            appPort.close();
             mongoose.connection.close(() => done())
         });
     });
@@ -70,7 +117,7 @@ describe('BE API - FOR AUTHENTICATION', () => {
         expect(res.body).toEqual({ message: 'User needs to send all required data' });
     });
 
-    it('POST - /api/auth/create -  Fail - not send all required data', async () => {
+    it('POST - /api/auth/create -  Success - Successfully create a user.', async () => {
         const name = faker.name.findName();
         const email = faker.internet.email();
         const password = 'fakePassword';
