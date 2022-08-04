@@ -10,7 +10,7 @@ on:
 jobs:
   sonarcloud:
     name: SonarCloud
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       MONGODB_ACCESS_URL: ${{ secrets.MONGODB_ACCESS_URL }}
       PORT: ${{ secrets.PORT }}
