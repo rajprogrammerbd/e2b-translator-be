@@ -39,31 +39,29 @@ async function createUser(person: IPerson) {
 }
 
 async function loginUser(email: string, password: string) {
-    if (Database.isSuccess()) {
-        return User.findOne({ email }).then((user: user) => {
-            if (!user) {
-                throw new Error("Couldn't able to find user");
-            }
+    return User.findOne({ email }).then((user: user) => {
+        if (!user) {
+            throw new Error("Couldn't able to find user");
+        }
 
-            if (!compareSync(password, user.password)) {
-                throw new Error("Incorrect passport");
-            }
+        if (!compareSync(password, user.password)) {
+            throw new Error("Incorrect passport");
+        }
 
-            const payload = {
-                email: user.email,
-                id: user._id
-            };
+        const payload = {
+            email: user.email,
+            id: user._id
+        };
 
-            const token = jwt.sign(payload, process.env.JSON_PRIVATE_KEY as string, { expiresIn: '1d' });
+        const token = jwt.sign(payload, process.env.JSON_PRIVATE_KEY as string, { expiresIn: '1d' });
 
-            return {
-                success: true,
-                name: user.name,
-                userEmail: user.email,
-                token: token
-            };
-        })
-    } else return new Error("database is not connected");
+        return {
+            success: true,
+            name: user.name,
+            userEmail: user.email,
+            token: token
+        };
+    });
 }
 
 export default {

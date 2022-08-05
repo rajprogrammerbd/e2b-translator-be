@@ -20,7 +20,7 @@ async function loginUser(req: express.Request, res: express.Response) {
     const { email, password } = req.body;
     if (email && password) {
         if (req.isLogin) {
-            res.status(406).send('User already logged in');
+            res.status(406).send({ message: 'User already logged in' });
         } else {
             try {
                 const value = await userCredentialService.loginUser(email, password);

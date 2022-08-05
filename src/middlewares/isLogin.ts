@@ -14,6 +14,16 @@ function isLogin(req: express.Request, res: express.Response, next: express.Next
             } catch (err: any) {
                 req.isLogin = false;
             }
+        } else if (req?.headers?.authorization !== undefined) {
+            try {
+                const token = req?.headers?.authorization.replace('Bearer ', '');
+                jwt.verify(token, process.env.JSON_PRIVATE_KEY as string);
+                req.isLogin = true;
+            } catch (err: any) {
+                req.isLogin = false;
+            }
+
+            next();
         } else req.isLogin = false;
 
         next();

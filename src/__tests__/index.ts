@@ -2,9 +2,8 @@ import { appPort } from '../../index';
 import { faker } from '@faker-js/faker';
 import mongoose from 'mongoose';
 import request from 'supertest';
+import supertest from 'supertest';
 import { User } from '../services/userCredential.service';
-
-// jest.spyOn(process, 'exit').mockImplementation(() => { throw new Error('Failed to connect with the database.'); });
 
 jest.mock('mongoose', () => {
     // Require the original module to not be mocked...
@@ -89,7 +88,45 @@ describe('BE API - FOR AUTHORIZATION', () => {
       email
     });
 
-    // deleted a user which we just created.
+    const notMatchPassword = await request(appPort).post('/api/auth/login').send({ email, password: 'wrongPasswordToFail' });
+
+    expect(notMatchPassword.statusCode).toBe(500);
+    expect(notMatchPassword.body).toEqual({ message: 'Error: Incorrect passport' });
+
+    const notFoundUser = await request(appPort).post('/api/auth/login').send({ email: faker.internet.email(), password });
+    
+    expect(notFoundUser.statusCode).toBe(500);
+    expect(notFoundUser.body).toEqual({ message: "Error: Couldn't able to find user" });
+
+    const removedTitle = res.headers['set-cookie'][0].replace('LOGIN_ACCESS_COOKIE=', '');
+    const slicedCookie = removedTitle.substring(0, removedTitle.indexOf('; Max-Age=360;'));
+
+    const sendCookie = await request(appPort).post('/api/auth/login').set('Cookie', `LOGIN_ACCESS_COOKIE=${slicedCookie}`).send({ email, password });
+
+    expect(sendCookie.statusCode).toBe(406);
+    expect(sendCookie.body).toEqual({ message: 'User already logged in' });
+
+    const sendWrongCookie = await request(appPort).post('/api/auth/login').set('Cookie', `LOGIN_ACCESS_COOKIE=abd`).send({ email, password });
+
+    expect(sendWrongCookie.statusCode).toBe(200);
+    expect(sendWrongCookie.body).toEqual({
+      success: true,
+      name,
+      email
+    });
+
+    const defaultAgent = new Proxy(supertest(appPort), {
+      get: (target, name) => (...args: any[]) =>
+        (target as any)[name](...args).set({
+          'Authorization': slicedCookie
+        })
+    });
+
+    const failedLogin = await defaultAgent.post('/api/auth/login').send({ email, password });
+
+    expect(failedLogin.statusCode).toBe(406);
+    expect(failedLogin.body).toEqual({ message: 'User already logged in' });
+
     await User.deleteOne({ email });
   });
 });
@@ -131,7 +168,6 @@ describe('BE API - FOR AUTHENTICATION', () => {
             user: { name, email }
         });
 
-        // Deleting the data from database.
         await User.deleteOne({ email });
     });
 });
