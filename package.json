@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
-    "watch-node": "node dist/index.js",
+    "watch-node": "tsc && node dist/index.js",
     "watch-ts": "nodemon index.ts",
     "test": "jest --coverage  --forceExit --detectOpenHandles --verbose",
     "watchAll": "jest --coverage --watchAll --detectOpenHandles",
