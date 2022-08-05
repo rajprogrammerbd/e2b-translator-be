@@ -11,6 +11,11 @@ jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+    env:
+      MONGODB_ACCESS_URL: ${{ secrets.MONGODB_ACCESS_URL }}
+      PORT: ${{ secrets.PORT }}
+      JSON_PRIVATE_KEY: ${{ secrets.JSON_PRIVATE_KEY }}
+
     steps:
       - uses: actions/checkout@v2
         with:

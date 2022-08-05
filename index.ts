@@ -8,23 +8,28 @@ import userCredential from './src/routes/userCredential.route';
 import * as winston from 'winston';
 import * as expressWinston from 'express-winston';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import colors from 'colors';
+
+// import middleware functions.
+import isLogin from './src/middlewares/isLogin';
 
 // Check for database connection.
 Database.connect().then(() => {
   console.log(colors.italic.bold.bgGreen('Database is connected'));
-}).catch(() => {
-  console.log(colors.bold.bgRed('error on connect to database'));
-  process.exit();
 });
 
 const app: express.Application = express();
-
+app.use(cookieParser());
 app.use(express.json());
+app.use(isLogin);
 
-// here we are adding middleware to allow cross-origin requests
-app.use(cors());
+const corsConfig = {
+  credentials: true,
+  origin: true,
+};
+app.use(cors(corsConfig));
 
 const loggerOptions: expressWinston.LoggerOptions = {
   transports: [new winston.transports.Console()],
@@ -41,7 +46,6 @@ if (!process.env.DEBUG) {
 
 app.use(expressWinston.logger(loggerOptions));
 
-app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: true,
@@ -50,8 +54,8 @@ app.use(
 app.use(passport.initialize());
 require("./src/config/passport.config");
 
-app.use('/', homepageRoutes);
-app.use('/auth', userCredential);
+app.use('/api', homepageRoutes);
+app.use('/api/auth', userCredential);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   const statusCode = err.statusCode || 500;
@@ -63,4 +67,4 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // "dev": "tsc && node --unhandled-rejections=strict ./dist/index.js"
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Application is running on ${PORT}`));
+export const appPort = app.listen(PORT, () => console.log(`Application is running on ${PORT}`));

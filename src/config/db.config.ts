@@ -14,7 +14,8 @@ class Database {
             access.connected = true;
             return status;
         } catch (err: any) {
-            return err;
+            access.connected = false;
+            return Promise.reject(err);
         }
     }
 

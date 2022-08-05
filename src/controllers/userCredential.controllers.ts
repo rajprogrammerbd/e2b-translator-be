@@ -19,11 +19,16 @@ async function saveUser(req: express.Request, res: express.Response) {
 async function loginUser(req: express.Request, res: express.Response) {
     const { email, password } = req.body;
     if (email && password) {
-        try {
-            const value = await userCredentialService.loginUser(email, password);
-            res.send(value);
-        } catch (err: any) {
-            throw new Error(err);
+        if (req.isLogin) {
+            res.status(406).send({ message: 'User already logged in' });
+        } else {
+            try {
+                const value = await userCredentialService.loginUser(email, password);
+                const { success, name, userEmail, token } = value;
+                res.cookie('LOGIN_ACCESS_COOKIE', token, { maxAge: 360000, secure: true, sameSite: 'none' }).send({ success, name, email: userEmail });
+            } catch (err: any) {
+                throw new Error(err);
+            }
         }
     } else res.status(404).send({ message: 'User needs to send all required data' });
 }
