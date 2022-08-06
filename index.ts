@@ -1,4 +1,4 @@
-require('newrelic');
+require('./newrelic.js');
 require('express-async-errors');
 require('dotenv').config();
 import express from 'express';
