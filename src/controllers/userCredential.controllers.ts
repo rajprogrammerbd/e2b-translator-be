@@ -33,7 +33,17 @@ async function loginUser(req: express.Request, res: express.Response) {
     } else res.status(404).send({ message: 'User needs to send all required data' });
 }
 
+function logoutUser(req: express.Request, res: express.Response) {
+    if (req.isLogin) {
+        res.cookie('LOGIN_ACCESS_COOKIE', 'InvalidCookieSend', { maxAge: 360000, secure: true, sameSite: 'none' }).end();
+        return;
+    }
+    
+    res.status(500).send({ message: 'User needs to be login' });
+}
+
 export default {
     saveUser,
     loginUser,
+    logoutUser,
 }

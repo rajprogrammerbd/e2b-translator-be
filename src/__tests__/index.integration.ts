@@ -27,6 +27,29 @@ test('GET - / - Failed to connect with the database', async () => {
     appPort.close();
 });
 
+describe('BE API - FOR LOGOUT', () => {
+  beforeEach((done) => {
+    jest.clearAllMocks();
+    mongoose.connect(URL).then(() => done())
+  });
+  
+  afterEach((done) => {
+    mongoose.connection.db.dropDatabase(() => {
+      appPort.close();
+      mongoose.connection.close(() => done())
+    });
+  });
+
+  it('POST - Fail to logout', async () => {
+    const res = await request(appPort).post('/api/auth/logout');
+    
+    expect(res.statusCode).toBe(500);
+    expect(res.body).toEqual({
+      message: 'User needs to be login'
+    });
+  });
+});
+
 describe('BE API - FOR HOMEPAGE', () => {
     beforeEach((done) => {
         jest.clearAllMocks();
@@ -105,6 +128,12 @@ describe('BE API - FOR AUTHORIZATION', () => {
 
     expect(sendCookie.statusCode).toBe(406);
     expect(sendCookie.body).toEqual({ message: 'User already logged in' });
+
+    // add for logout.
+    const logout = await request(appPort).post('/api/auth/logout').set('Cookie', `LOGIN_ACCESS_COOKIE=${slicedCookie}`);
+    
+    // Successfully logout.
+    expect(logout.statusCode).toBe(200);
 
     const sendWrongCookie = await request(appPort).post('/api/auth/login').set('Cookie', `LOGIN_ACCESS_COOKIE=abd`).send({ email, password });
 

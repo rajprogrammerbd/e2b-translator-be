@@ -11,6 +11,8 @@ router.get('/demo', passport.authenticate('jwt', { session: false }), (req, res)
 })
 */
 
+router.post('/logout', userCredential.logoutUser);
+
 router.post('/login', userCredential.loginUser);
 
 export default router;
