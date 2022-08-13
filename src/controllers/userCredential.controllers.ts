@@ -34,7 +34,12 @@ async function loginUser(req: express.Request, res: express.Response) {
 }
 
 function logoutUser(req: express.Request, res: express.Response) {
-    res.cookie('LOGIN_ACCESS_COOKIE', 'InvalidCookieSend', { maxAge: 360000, secure: true, sameSite: 'none' }).end();
+    if (req.isLogin) {
+        res.cookie('LOGIN_ACCESS_COOKIE', 'InvalidCookieSend', { maxAge: 360000, secure: true, sameSite: 'none' }).end();
+        return;
+    }
+    
+    res.status(500).send({ message: 'User needs to be login' });
 }
 
 export default {
