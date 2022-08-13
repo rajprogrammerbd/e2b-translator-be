@@ -1,5 +1,6 @@
 import express from 'express';
 import userCredentialService from "../services/userCredential.service";
+import { logger } from '../middlewares/winston';
 
 async function saveUser(req: express.Request, res: express.Response) {
     try {
@@ -12,6 +13,7 @@ async function saveUser(req: express.Request, res: express.Response) {
         } else res.status(404).send({ message: 'User needs to send all required data' });
 
     } catch (err: any) {
+        logger.error(err);
         throw new Error(err);
     }
 }
@@ -27,6 +29,7 @@ async function loginUser(req: express.Request, res: express.Response) {
                 const { success, name, userEmail, token } = value;
                 res.cookie('LOGIN_ACCESS_COOKIE', token, { maxAge: 360000, secure: true, sameSite: 'none' }).send({ success, name, email: userEmail });
             } catch (err: any) {
+                logger.error(err);
                 throw new Error(err);
             }
         }

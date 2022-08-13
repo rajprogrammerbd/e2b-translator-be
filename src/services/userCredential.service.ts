@@ -2,6 +2,7 @@ import userSchema, { user } from '../config/schema/user';
 import Database from '../config/db.config';
 import { hashSync, compareSync } from 'bcrypt';
 import jwt from "jsonwebtoken";
+import { logger } from '../middlewares/winston';
 
 export const User = Database.prepare(userSchema, 'user');
 
@@ -34,6 +35,7 @@ async function createUser(person: IPerson) {
             user: { name: res.name, email: res.email }
         };
     } catch (err: any) {
+        logger.error(err);
         throw new Error(err);
     }
 }
