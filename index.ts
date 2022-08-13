@@ -6,8 +6,6 @@ import bodyParser from 'body-parser';
 import Database from "./src/config/db.config";
 import homepageRoutes from './src/routes/homepage.route';
 import userCredential from './src/routes/userCredential.route';
-import * as winston from 'winston';
-import * as expressWinston from 'express-winston';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
@@ -31,21 +29,6 @@ const corsConfig = {
   origin: true,
 };
 app.use(cors(corsConfig));
-
-const loggerOptions: expressWinston.LoggerOptions = {
-  transports: [new winston.transports.Console()],
-  format: winston.format.combine(
-      winston.format.json(),
-      winston.format.prettyPrint(),
-      winston.format.colorize({ all: true })
-  ),
-};
-
-if (!process.env.DEBUG) {
-  loggerOptions.meta = false; // when not debugging, log requests as one-liners
-}
-
-app.use(expressWinston.logger(loggerOptions));
 
 app.use(
   bodyParser.urlencoded({

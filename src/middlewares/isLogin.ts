@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import Database from '../config/db.config';
+import { logger } from '../middlewares/winston';
 
 function isLogin(req: express.Request, res: express.Response, next: express.NextFunction) {
     const isConnected = Database.isSuccess();
@@ -28,6 +29,7 @@ function isLogin(req: express.Request, res: express.Response, next: express.Next
 
         next();
     } else {
+        logger.error({ message: 'Failed to connect with the database' });
         res.status(500).send({ message: 'Internal Error' });
     }
 }
