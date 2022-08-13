@@ -107,3 +107,4 @@ dist
 .env.prod
 
 coverage
+.vscode
