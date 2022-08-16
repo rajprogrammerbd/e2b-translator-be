@@ -3,7 +3,7 @@ import * as winston from 'winston';
 
 const options = {
     db: process.env.MONGODB_ACCESS_URL as string,
-    collection: 'error-logs',
+    collection: 'e2b-translator-error',
     level: 'error',
     options: {
         useUnifiedTopology: true
