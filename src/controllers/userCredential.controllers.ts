@@ -4,12 +4,13 @@ import { logger } from '../middlewares/winston';
 
 async function saveUser(req: express.Request, res: express.Response) {
     try {
-        const { name, email, password, userName } = req.body;
+        const { name, email, password, userName, userType } = req.body;
 
-        if (name && email && password && userName) {
-            const person = { name, email, password, userName };
+        if (name && email && password && userName && userType) {
+            const person = { name, email, password, userName, userType };
+            const responseData = await userCredentialService.createUser(person);
 
-            res.json(await userCredentialService.createUser(person));
+            res.send(responseData.data);
         } else res.status(404).send({ message: 'User needs to send all required data' });
 
     } catch (err: any) {

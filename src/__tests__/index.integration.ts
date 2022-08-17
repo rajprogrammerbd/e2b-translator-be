@@ -30,6 +30,7 @@ test('GET - / - Failed to connect with the database', async () => {
 describe('BE API - FOR LOGOUT', () => {
   beforeEach((done) => {
     jest.clearAllMocks();
+    jest.setTimeout(60000);
     mongoose.connect(URL).then(() => done())
   });
   
@@ -92,14 +93,16 @@ describe('BE API - FOR AUTHORIZATION', () => {
     expect(res.body).toEqual({ message: 'User needs to send all required data' });
   });
 
+
   it('POST - /api/auth/login - Login system', async () => {
     const name = faker.name.findName();
-    const email = faker.internet.email();
+    const email = "rajd50843@gmail.com";
     const password = 'fakePassword';
     const userName = 'mockUserName';
+    const userType = "Admin";
     
     // Create a user.
-    await request(appPort).post('/api/auth/create').send({name, email, password, userName});
+    await request(appPort).post('/api/auth/create').send({name, email, password, userName, userType});
 
     // login the user.
     const res = await request(appPort).post('/api/auth/login').send({ email, password });
@@ -145,7 +148,7 @@ describe('BE API - FOR AUTHORIZATION', () => {
     });
 
     const defaultAgent = new Proxy(supertest(appPort), {
-      get: (target, name) => (...args: any[]) =>
+       get: (target, name) => (...args: any[]) =>
         (target as any)[name](...args).set({
           'Authorization': slicedCookie
         })
@@ -157,7 +160,7 @@ describe('BE API - FOR AUTHORIZATION', () => {
     expect(failedLogin.body).toEqual({ message: 'User already logged in' });
 
     await User.deleteOne({ email });
-  });
+  }, 20000);
 });
 
 describe('BE API - FOR AUTHENTICATION', () => {
@@ -181,14 +184,16 @@ describe('BE API - FOR AUTHENTICATION', () => {
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ message: 'User needs to send all required data' });
-    });
+    }, 10000);
 
     it('POST - /api/auth/create -  Success - Successfully create a user.', async () => {
         const name = faker.name.findName();
-        const email = faker.internet.email();
+        const email = "rajd50843@gmail.com";
         const password = 'fakePassword';
         const userName = 'mockUserName';
-        const res = await request(appPort).post('/api/auth/create').send({name, email, password, userName});
+        const userType = "Admin";
+
+        const res = await request(appPort).post('/api/auth/create').send({name, email, password, userName, userType});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({
@@ -198,5 +203,5 @@ describe('BE API - FOR AUTHENTICATION', () => {
         });
 
         await User.deleteOne({ email });
-    });
+    }, 10000);
 });
