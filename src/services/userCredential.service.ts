@@ -1,43 +1,35 @@
+require('dotenv').config();
 import userSchema, { user } from '../config/schema/user';
 import Database from '../config/db.config';
-import { hashSync, compareSync } from 'bcrypt';
+import { compareSync } from 'bcrypt';
 import jwt from "jsonwebtoken";
 import { logger } from '../middlewares/winston';
+import axios from 'axios';
+
+axios.defaults.headers.common['Authorization'] = process.env.AUTHORIZATION_CODE as string || '';
 
 export const User = Database.prepare(userSchema, 'user');
 
+type ACCESS_TYPE = 'Admin' | 'User' | 'Temp';
 interface IPerson {
     name: string;
     email: string;
     password: string;
     userName: string;
+    userType: ACCESS_TYPE,
 }
 
-async function createUser(person: IPerson) {
-    const { name, email, password, userName } = person;
+async function createUser(person: IPerson): Promise<any> {
+    return new Promise((resolve, reject) => {
+        const { name, email, password, userName, userType } = person;
 
-    const searchUser = await User.find({ email });
-    if (searchUser.length > 0) throw new Error('User is already exist');
-
-    const newUser = new User({
-        name,
-        email,
-        password: hashSync(password, 10),
-        createdTime: Date.now(),
-        userName
+        axios.post(`${process.env.USERS_REPO_ACCESS_URL}/auth/create`, { name, email, password, userName, userType }).then((succObj: any) => {
+            resolve(succObj);
+        }).catch((err: any) => {
+            logger.error(err.response.data);
+            reject(err.response.data.message);
+        });
     });
-
-    try {
-        const res = await newUser.save();
-        return {
-            success: true,
-            message: 'User created successfully',
-            user: { name: res.name, email: res.email }
-        };
-    } catch (err: any) {
-        logger.error(err);
-        throw new Error(err);
-    }
 }
 
 async function loginUser(email: string, password: string) {
