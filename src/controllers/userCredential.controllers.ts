@@ -9,8 +9,8 @@ async function saveUser(req: express.Request, res: express.Response) {
         if (name && email && password && userName && userType) {
             const person = { name, email, password, userName, userType };
             const responseData = await userCredentialService.createUser(person);
-
-            res.send(responseData.data);
+            console.log('responseData ',  responseData);
+            res.send(responseData);
         } else res.status(404).send({ message: 'User needs to send all required data' });
 
     } catch (err: any) {

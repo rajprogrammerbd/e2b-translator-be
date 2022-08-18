@@ -10,6 +10,15 @@ axios.defaults.headers.common['Authorization'] = process.env.AUTHORIZATION_CODE 
 
 export const User = Database.prepare(userSchema, 'user');
 
+interface ResponseType {
+    success: boolean;
+    message: string;
+    user: {
+        name: string;
+        email: string;
+    }
+}
+
 type ACCESS_TYPE = 'Admin' | 'User' | 'Temp';
 interface IPerson {
     name: string;
@@ -19,12 +28,16 @@ interface IPerson {
     userType: ACCESS_TYPE,
 }
 
-async function createUser(person: IPerson): Promise<any> {
+interface ErrorType {
+    message: string;
+}
+
+async function createUser(person: IPerson): Promise<ResponseType | ErrorType> {
     return new Promise((resolve, reject) => {
         const { name, email, password, userName, userType } = person;
 
-        axios.post(`${process.env.USERS_REPO_ACCESS_URL}/auth/create`, { name, email, password, userName, userType }).then((succObj: any) => {
-            resolve(succObj);
+        axios.post<ResponseType>(`${process.env.USERS_REPO_ACCESS_URL}/auth/create`, { name, email, password, userName, userType }).then((succObj: any) => {
+            resolve(succObj.data);
         }).catch((err: any) => {
             logger.error(err.response.data);
             reject(err.response.data.message);

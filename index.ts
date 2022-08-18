@@ -18,7 +18,7 @@ import isLogin from './src/middlewares/isLogin';
 // import { logger } from './src/middlewares/winston';
 
 process.on('uncaughtException', err => {
-  console.log(colors.italic.bold.bgGreen(`Uncaught Exception logged: ${err}`));
+  console.log(`Uncaught Exception logged: ${err}`);
 });
 
 // Check for database connection.
