@@ -39,6 +39,7 @@ async function createUser(person: IPerson): Promise<ResponseType | ErrorType> {
         axios.post<ResponseType>(`${process.env.USERS_REPO_ACCESS_URL}/auth/create`, { name, email, password, userName, userType }).then((succObj: any) => {
             resolve(succObj.data);
         }).catch((err: AxiosError) => {
+            console.log('Axios Failed ', err, err.stack);
             logger.error(err.response?.data);
             reject(err.response?.data);
         });
