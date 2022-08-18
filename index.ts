@@ -15,6 +15,12 @@ import colors from 'colors';
 
 // import middleware functions.
 import isLogin from './src/middlewares/isLogin';
+import { logger } from './src/middlewares/winston';
+
+process.on('uncaughtException', err => {
+  logger.error(`Uncaught Exception logged: ${err}`)
+  process.exit(1);
+});
 
 // Check for database connection.
 Database.connect().then(() => {
