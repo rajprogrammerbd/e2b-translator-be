@@ -15,16 +15,15 @@ import colors from 'colors';
 
 // import middleware functions.
 import isLogin from './src/middlewares/isLogin';
-import { logger } from './src/middlewares/winston';
+// import { logger } from './src/middlewares/winston';
 
 process.on('uncaughtException', err => {
-  logger.error(`Uncaught Exception logged: ${err}`)
-  process.exit(1);
+  console.log(colors.italic.bold.bgGreen(`Uncaught Exception logged: ${err}`));
 });
 
 // Check for database connection.
 Database.connect().then(() => {
-  console.log(colors.italic.bold.bgGreen('Database is connected'));
+  console.log(colors.italic.bold.bgGreen('Database (MongoDB) is connected'));
 });
 
 const app: express.Application = express();
