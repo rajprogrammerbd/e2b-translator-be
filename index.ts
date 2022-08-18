@@ -53,7 +53,6 @@ app.use('/api/auth', userCredential);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   const statusCode = err.statusCode || 500;
-  console.error(err.message, err.stack);
   res.status(statusCode).json({'message': err.message});
   
   return;
