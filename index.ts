@@ -1,6 +1,8 @@
 require('./src/utils/newrelic');
 require('express-async-errors');
 require('dotenv').config();
+import compression from 'compression';
+import responseTime from 'response-time';
 import express from 'express';
 import bodyParser from 'body-parser';
 import Database from "./src/config/db.config";
@@ -22,6 +24,9 @@ Database.connect().then(() => {
 const app: express.Application = express();
 app.use(cookieParser());
 app.use(express.json());
+app.use(compression());
+app.use(responseTime());
+
 app.use(isLogin);
 
 const corsConfig = {
