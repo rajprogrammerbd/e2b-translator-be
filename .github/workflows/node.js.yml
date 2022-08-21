@@ -21,6 +21,7 @@ jobs:
       NEW_RELIC_APP_NAME: ${{ secrets.NEW_RELIC_APP_NAME }}
       AUTHORIZATION_CODE: ${{ secrets.AUTHORIZATION_CODE }}
       USERS_REPO_ACCESS_URL: ${{ secrets.USERS_REPO_ACCESS_URL }}
+      WORDS_REPO_ACCESS_URL: ${{ secrets.WORDS_REPO_ACCESS_URL }}
 
     strategy:
       matrix:
