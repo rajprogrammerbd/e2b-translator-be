@@ -8,6 +8,7 @@ import bodyParser from 'body-parser';
 import Database from "./src/config/db.config";
 import homepageRoutes from './src/routes/homepage.route';
 import userCredential from './src/routes/userCredential.route';
+import wordsRoute from './src/routes/words.route';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
@@ -19,6 +20,10 @@ import isLogin from './src/middlewares/isLogin';
 
 process.on('uncaughtException', err => {
   console.log(`Uncaught Exception logged:`, err, err.stack);
+});
+
+process.on('unhandledRejection', error => {
+  console.error('unhandledRejection', error, error);
 });
 
 // Check for database connection.
@@ -50,6 +55,7 @@ require("./src/config/passport.config");
 
 app.use('/api', homepageRoutes);
 app.use('/api/auth', userCredential);
+app.use('/api/auth', wordsRoute);
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   const statusCode = err.statusCode || 500;
