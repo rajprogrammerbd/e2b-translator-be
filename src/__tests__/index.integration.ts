@@ -295,7 +295,6 @@ describe('BE API - FOR WORD', () => {
    });
 
    const reAdded = await customAgent.post('/api/auth/add-word').send(body);
-   console.log('reAdded', reAdded.statusCode, reAdded.body);
 
    expect(reAdded.statusCode).toBe(500);
    expect(reAdded.body).toEqual({
@@ -303,6 +302,13 @@ describe('BE API - FOR WORD', () => {
    });
 
    // Here I need to remove the word.
+   const deletedWord = await customAgent.delete('/api/auth/delete-word').send({ englishWord: body.englishWord });
+
+   expect(deletedWord.statusCode).toBe(200);
+   expect(deletedWord.body).toEqual({
+    status: true
+   });
+
    await User.deleteOne({ email });
   }, 20000);
 })
