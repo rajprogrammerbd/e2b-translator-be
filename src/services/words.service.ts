@@ -1,3 +1,4 @@
+import { RemoveWordsRequestBodyType } from './../utils/types';
 require('dotenv').config();
 import { AddWordsRequestBodyType } from '../utils/types';
 import axios, { AxiosError } from 'axios';
@@ -11,6 +12,10 @@ interface ResponseType {
         email: string;
         username: string;
     }
+}
+
+interface DeleteResponseType {
+    status: boolean;
 }
   
   function addAWord(body: AddWordsRequestBodyType): Promise<ResponseType | AxiosError> {
@@ -38,8 +43,28 @@ interface ResponseType {
         }
     });
   }
+
+  function deleteAWord(body: RemoveWordsRequestBodyType): Promise<DeleteResponseType | AxiosError> {
+    return new Promise(async (resolve, reject) => {
+        const { englishWord } = body;
+
+        try {
+            const removedWord = await axios.delete<DeleteResponseType>(`${process.env.WORDS_REPO_ACCESS_URL}/api/remove/word`, { data: { englishWord } });
+
+            const resolvedObj: DeleteResponseType = {
+                status: removedWord.data?.status
+            };
+
+            resolve(resolvedObj);
+        } catch (err: any) {
+            console.log('error because of rejection ', err);
+            reject(err.response.data);
+        }
+    });
+  }
   
   export default {
+    deleteAWord,
     addAWord,
   };
   

@@ -3,3 +3,7 @@ export interface AddWordsRequestBodyType {
     banglaWords: string[];
     relatedEnglishWords: string[];
 }
+
+export interface RemoveWordsRequestBodyType {
+    englishWord: string;
+}
