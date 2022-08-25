@@ -57,7 +57,6 @@ interface DeleteResponseType {
 
             resolve(resolvedObj);
         } catch (err: any) {
-            console.log('error because of rejection ', err);
             reject(err.response.data);
         }
     });

@@ -3,6 +3,7 @@ declare global {
         interface Request {
             isLogin: boolean;
             token: string | undefined;
+            userEmail: string | undefined;
         }
     }
 }

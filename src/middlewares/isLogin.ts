@@ -11,7 +11,7 @@ function isLogin(req: express.Request, res: express.Response, next: express.Next
         if (req?.headers?.cookie !== undefined && req?.headers?.authorization !== undefined) {
             try {
                 const cookies = cookie.parse(req.headers.cookie);
-                jwt.verify(cookies.LOGIN_ACCESS_COOKIE, process.env.JSON_PRIVATE_KEY as string);
+                const verifiedUser: any = jwt.verify(cookies.LOGIN_ACCESS_COOKIE, process.env.JSON_PRIVATE_KEY as string);
 
                 const token = req?.headers?.authorization.replace('Bearer ', '');
                 jwt.verify(token, process.env.JSON_PRIVATE_KEY as string);
@@ -19,6 +19,7 @@ function isLogin(req: express.Request, res: express.Response, next: express.Next
 
                 req.isLogin = true;
                 req.token = cookies.LOGIN_ACCESS_COOKIE;
+                req.userEmail = verifiedUser.email;
             } catch (err: any) {
                 req.isLogin = false;
             }
