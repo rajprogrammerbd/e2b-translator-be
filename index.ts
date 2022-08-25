@@ -11,7 +11,6 @@ import userCredential from './src/routes/userCredential.route';
 import wordsRoute from './src/routes/words.route';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import passport from 'passport';
 import colors from 'colors';
 
 // import middleware functions.
@@ -50,8 +49,7 @@ app.use(
     extended: true,
   })
 );
-app.use(passport.initialize());
-require("./src/config/passport.config");
+
 
 app.use('/api', homepageRoutes);
 app.use('/api/auth', userCredential);

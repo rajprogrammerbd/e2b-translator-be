@@ -1,14 +1,8 @@
 require('dotenv').config();
-import userSchema, { user } from '../config/schema/user';
-import Database from '../config/db.config';
-import { compareSync } from 'bcrypt';
-import jwt from "jsonwebtoken";
 import { logger } from '../middlewares/winston';
 import axios, { AxiosError } from 'axios';
 
 axios.defaults.headers.common['Authorization'] = process.env.AUTHORIZATION_CODE as string || '';
-
-export const User = Database.prepare(userSchema, 'user');
 
 interface ResponseType {
     success: boolean;
@@ -45,33 +39,37 @@ async function createUser(person: IPerson): Promise<ResponseType | ErrorType> {
     });
 }
 
-async function loginUser(email: string, password: string) {
-    return User.findOne({ email }).then((user: user) => {
-        if (!user) {
-            throw new Error("Couldn't able to find user");
+function loginUser(email: string, password: string) {
+    return new Promise(async (resolve, reject) => {
+            await axios.post(`${process.env.USERS_REPO_ACCESS_URL}/auth/login`, { email, password }).then((loggedIn: any) => {
+            
+            const { name, userEmail, token, AccessType } = loggedIn.data;
+            const data = { success: true, name, userEmail, token, accessType: AccessType };
+            resolve(data);
+
+        }).catch((err: AxiosError) => {
+            reject(err.response?.data)
+        });
+    });
+}
+
+function deleteUser(email: string, token: string ) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const deletedUser = await axios.delete(`${process.env.USERS_REPO_ACCESS_URL}/auth/delete`, { headers: {
+                'Authorization': process.env.AUTHORIZATION_CODE as string || '',
+                Cookie: `LOGIN_ACCESS_COOKIE=${token}`,
+            }, data: { email } });
+
+            resolve(deletedUser.data);
+        } catch (err: any) {
+            reject(err.response.data);
         }
-
-        if (!compareSync(password, user.password)) {
-            throw new Error("Incorrect passport");
-        }
-
-        const payload = {
-            email: user.email,
-            id: user._id
-        };
-
-        const token = jwt.sign(payload, process.env.JSON_PRIVATE_KEY as string, { expiresIn: '1d' });
-
-        return {
-            success: true,
-            name: user.name,
-            userEmail: user.email,
-            token: token
-        };
     });
 }
 
 export default {
     createUser,
     loginUser,
+    deleteUser,
 }

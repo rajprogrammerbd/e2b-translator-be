@@ -3,7 +3,6 @@ import { faker } from '@faker-js/faker';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import supertest from 'supertest';
-import { User } from '../services/userCredential.service';
 
 jest.mock('mongoose', () => {
     // Require the original module to not be mocked...
@@ -40,6 +39,76 @@ describe('BE API - FOR LOGOUT', () => {
       mongoose.connection.close(() => done())
     });
   });
+
+// ----------------------------
+it('add a word', async () => {
+  const name_word = 'demo name raj';
+  const email_word = "rajd50843@gmail.com";
+  const password_word = 'fakePassword';
+  const userName_word = 'mockUserName';
+  const userType_word = "Admin";
+  
+    // Create a user.
+    await request(appPort).post('/api/auth/create').send({name: name_word, email: email_word, password: password_word, userName: userName_word, userType: userType_word });
+
+    // login the user.
+    const loggedIn = await request(appPort).post('/api/auth/login').send({ email: email_word, password: password_word });
+
+    const removedTitle = loggedIn.headers['set-cookie'][0].replace('LOGIN_ACCESS_COOKIE=', '');
+    const slicedCookie = removedTitle.substring(0, removedTitle.indexOf('; Max-Age=360;'));
+
+    const customAgent = new Proxy(supertest(appPort), {
+      get: (target, name) => (...args: any[]) =>
+       (target as any)[name](...args).set({
+         'Authorization': `Bearer ${slicedCookie}`,
+         'Cookie': `LOGIN_ACCESS_COOKIE=${slicedCookie}`,
+       })
+   });
+  
+   const notSendRequiredData = await customAgent.post('/api/auth/add-word');
+  
+   expect(notSendRequiredData.statusCode).toBe(404);
+   expect(notSendRequiredData.body).toEqual({ message: 'User needs to send all data' });
+
+   const body = {
+    englishWord: "demo_words",
+    banglaWords: ["শৈশব"],
+    relatedEnglishWords: ["1", "2"]
+   };
+  
+   const successToAdd = await customAgent.post('/api/auth/add-word').send(body);
+
+   expect(successToAdd.statusCode).toBe(200);
+   expect(successToAdd.body).toEqual({
+    success: true,
+    ...body,
+    user: {
+      email: email_word,
+      username: userName_word,
+      accessType: userType_word
+    }
+   });
+
+   const reAdded = await customAgent.post('/api/auth/add-word').send(body);
+
+   expect(reAdded.statusCode).toBe(500);
+   expect(reAdded.body).toEqual({
+    message: 'Word already existed'
+   });
+
+ // Here I need to remove the word.
+ const deletedWord = await customAgent.delete('/api/auth/delete-word').send({ englishWord: body.englishWord });
+
+ expect(deletedWord.statusCode).toBe(200);
+ expect(deletedWord.body).toEqual({
+  status: true
+ });
+
+ const deleted = await customAgent.delete('/api/auth/delete').send({ email: email_word });
+
+ expect(deleted.statusCode).toBe(200);
+}, 50000);
+// ----------------------------
 
   it('POST - Fail to logout', async () => {
     const res = await request(appPort).post('/api/auth/logout');
@@ -111,18 +180,19 @@ describe('BE API - FOR AUTHORIZATION', () => {
     expect(res.body).toEqual({
       success: true,
       name,
-      email
+      email,
+      "accessType": userType,
     });
 
     const notMatchPassword = await request(appPort).post('/api/auth/login').send({ email, password: 'wrongPasswordToFail' });
 
     expect(notMatchPassword.statusCode).toBe(500);
-    expect(notMatchPassword.body).toEqual({ message: 'Error: Incorrect passport' });
+    expect(notMatchPassword.body).toEqual({ message: "Incorrect passport" });
 
     const notFoundUser = await request(appPort).post('/api/auth/login').send({ email: faker.internet.email(), password });
     
     expect(notFoundUser.statusCode).toBe(500);
-    expect(notFoundUser.body).toEqual({ message: "Error: Couldn't able to find user" });
+    expect(notFoundUser.body).toEqual({ message: "Couldn't able to find user" });
 
     const removedTitle = res.headers['set-cookie'][0].replace('LOGIN_ACCESS_COOKIE=', '');
     const slicedCookie = removedTitle.substring(0, removedTitle.indexOf('; Max-Age=360;'));
@@ -151,7 +221,8 @@ describe('BE API - FOR AUTHORIZATION', () => {
     expect(sendWrongCookie.body).toEqual({
       success: true,
       name,
-      email
+      email,
+      accessType: "Admin"
     });
 
     const defaultAgent = new Proxy(supertest(appPort), {
@@ -167,7 +238,7 @@ describe('BE API - FOR AUTHORIZATION', () => {
     expect(failedLogin.statusCode).toBe(406);
     expect(failedLogin.body).toEqual({ message: 'User already logged in' });
 
-    await User.deleteOne({ email });
+    await defaultAgent.delete('/api/auth/delete').send({ email });
   }, 20000);
 });
 
@@ -192,25 +263,6 @@ describe('BE API - FOR AUTHENTICATION', () => {
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ message: 'User needs to send all required data' });
-    }, 10000);
-
-    it('POST - /api/auth/create -  Success - Successfully create a user.', async () => {
-        const name = faker.name.findName();
-        const email = "rajd50843@gmail.com";
-        const password = 'fakePassword';
-        const userName = 'mockUserName';
-        const userType = "Admin";
-
-        const res = await request(appPort).post('/api/auth/create').send({name, email, password, userName, userType});
-
-        expect(res.statusCode).toBe(200);
-        expect(res.body).toEqual({
-            success: true,
-            message: 'User created successfully',
-            user: { name, email }
-        });
-
-        await User.deleteOne({ email });
     }, 10000);
 });
 
@@ -244,71 +296,5 @@ describe('BE API - FOR WORD', () => {
 
     expect(res.statusCode).toBe(500);
     expect(res.body).toEqual({ message: 'User needs to login' });
-  });
-
-  it('add a word', async () => {
-    const name = faker.name.findName();
-    const email = "rajd50843@gmail.com";
-    const password = 'fakePassword';
-    const userName = 'mockUserName';
-    const userType = "Admin";
-    
-    // Create a user.
-    await request(appPort).post('/api/auth/create').send({name, email, password, userName, userType});
-
-    // login the user.
-    const res = await request(appPort).post('/api/auth/login').send({ email, password });
-
-    const removedTitle = res.headers['set-cookie'][0].replace('LOGIN_ACCESS_COOKIE=', '');
-    const slicedCookie = removedTitle.substring(0, removedTitle.indexOf('; Max-Age=360;'));
-
-    const customAgent = new Proxy(supertest(appPort), {
-      get: (target, name) => (...args: any[]) =>
-       (target as any)[name](...args).set({
-         'Authorization': `Bearer ${slicedCookie}`,
-         'Cookie': `LOGIN_ACCESS_COOKIE=${slicedCookie}`,
-       })
-   });
-
-   const notSendRequiredData = await customAgent.post('/api/auth/add-word');
-
-   expect(notSendRequiredData.statusCode).toBe(404);
-   expect(notSendRequiredData.body).toEqual({ message: 'User needs to send all data' });
-
-   const body = {
-    englishWord: "demo_words",
-    banglaWords: ["শৈশব"],
-    relatedEnglishWords: ["1", "2"]
-   };
-
-   const successToAdd = await customAgent.post('/api/auth/add-word').send(body);
-
-   expect(successToAdd.statusCode).toBe(200);
-   expect(successToAdd.body).toEqual({
-    success: true,
-    ...body,
-    user: {
-      email,
-      username: userName,
-      accessType: userType
-    }
-   });
-
-   const reAdded = await customAgent.post('/api/auth/add-word').send(body);
-
-   expect(reAdded.statusCode).toBe(500);
-   expect(reAdded.body).toEqual({
-    message: 'Word already existed'
-   });
-
-   // Here I need to remove the word.
-   const deletedWord = await customAgent.delete('/api/auth/delete-word').send({ englishWord: body.englishWord });
-
-   expect(deletedWord.statusCode).toBe(200);
-   expect(deletedWord.body).toEqual({
-    status: true
-   });
-
-   await User.deleteOne({ email });
   }, 20000);
-})
+});
