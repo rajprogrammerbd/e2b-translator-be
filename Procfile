@@ -1,1 +1,0 @@
-web:node -r newrelic  --omit=dev dist/index.js
