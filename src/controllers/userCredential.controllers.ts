@@ -44,7 +44,7 @@ function logoutUser(req: express.Request, res: express.Response) {
         return;
     }
     
-    res.status(500).send({ message: 'User needs to be login' });
+    res.status(500).send({ message: 'User needs to be login,' });
 }
 
 async function deleteAUser(req: express.Request, res: express.Response) {
